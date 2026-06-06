@@ -1,93 +1,117 @@
-# TicketSave
+# TicketSave — Sistema de Gerenciamento de Tickets
 
-Projeto academico da UNINOVE para gerenciamento de chamados de suporte em um
-e-commerce de eletronicos. O sistema possui API em Spring Boot, interface em
-React, exportacao para Excel e dados preparados para Home no Power BI.
+> Projeto acadêmico — UNINOVE, Grupo 05 · Sistemas da Informação · 2026
 
-## Situacao em relacao ao TAP
+Sistema web completo para gerenciamento de chamados de suporte técnico da loja fictícia **TechStore**. Desenvolvido com Spring Boot no back-end e React no front-end.
 
-| Item do TAP | Situacao |
-| --- | --- |
-| Criacao de tickets | Atendido |
-| Listagem de chamados | Atendido |
-| Atualizacao de status | Atendido |
-| API Spring Boot | Atendido |
-| Integracao com PostgreSQL | Parcial: configurada por perfil, mas o padrao local usa H2 |
-| Interface front-end | Atendido |
-| Exportacao Excel | Atendido |
-| Home | Parcial: existe Home no React e guia Power BI; o arquivo `.pbix` ainda deve ser montado no Power BI Desktop |
-| Autenticacao | Implementada como extra, embora o TAP diga que a primeira versao nao teria autenticacao |
+---
 
-## Estrutura
+## Funcionalidades
 
-```text
-backend/
-  src/main/java/com/uninove/ecommerce/ticketsave/
-    config/        Configuracoes de CORS, Swagger e dados iniciais
-    controller/    Endpoints REST de autenticacao e tickets
-    dto/           Objetos de entrada e saida da API
-    entity/        Entidades JPA: Ticket e Usuario
-    enums/         Status, categoria e prioridade dos tickets
-    repository/    Repositorios JPA
-    service/       Regras de negocio e exportacao Excel
-  database/
-    schema-postgres.sql
-frontend/
-  src/
-    components/    Sidebar
-    pages/         Login, Home, Tickets, Produtos e Ajuda
-    services/      Cliente HTTP da API
-tools/
-  regenerate_powerbi_excel.py
-GUIA_POWER_BI.md
-tickets_powerbi.xlsx
-docs/analise-projeto.md
+- Cadastro e login de usuários
+- Criação, edição e exclusão de tickets
+- Filtragem por status, categoria e prioridade
+- Alteração de status direto no card do ticket
+- Dashboard com contadores em tempo real
+- Exportação de tickets para Excel (`.xlsx`)
+- Documentação automática da API via Swagger
+- Vitrine de produtos e Central de Ajuda
+
+---
+
+## Stack
+
+| Camada | Tecnologias |
+|---|---|
+| Back-end | Java 17, Spring Boot 3.4.5, Spring Data JPA, Hibernate, Apache POI |
+| Banco de dados | H2 (desenvolvimento) · PostgreSQL (produção) |
+| Front-end | React, Vite, Axios, React Router DOM |
+| Documentação | Swagger / OpenAPI |
+| Análise de dados | Excel · Power BI |
+
+---
+
+## Estrutura do Projeto
+
+```
+ticketsave/
+├── backend/
+│   ├── src/main/java/com/uninove/ecommerce/ticketsave/
+│   │   ├── config/        # CORS, Swagger, dados iniciais
+│   │   ├── controller/    # Endpoints REST (auth + tickets)
+│   │   ├── dto/           # Objetos de entrada e saída da API
+│   │   ├── entity/        # Entidades JPA: Ticket, Usuario
+│   │   ├── enums/         # Status, Categoria, Prioridade
+│   │   ├── exception/     # Tratamento global de erros
+│   │   ├── repository/    # Repositórios JPA
+│   │   └── service/       # Regras de negócio e exportação Excel
+│   ├── database/
+│   │   └── schema-postgres.sql
+│   └── pom.xml
+├── frontend/
+│   ├── src/
+│   │   ├── components/    # Sidebar
+│   │   ├── pages/         # Login, Home, Tickets, Produtos, Ajuda
+│   │   ├── services/      # Cliente HTTP (Axios)
+│   │   └── styles.css
+│   └── package.json
+├── tools/
+│   └── regenerate_powerbi_excel.py
+├── tickets_powerbi.xlsx
+├── GUIA_POWER_BI.md
+├── docker-compose.yml
+└── README.md
 ```
 
-## Requisitos
+---
+
+## Pré-requisitos
 
 - Java 17 ou superior
-- Maven 3.9 ou superior, ou Maven Wrapper
-- Node.js 18 ou superior
-- PostgreSQL, caso queira rodar com banco real
-- Power BI Desktop, caso queira gerar o `.pbix`
+- Maven 3.9+ (ou use o Maven Wrapper incluso)
+- Node.js 18+
+- PostgreSQL (opcional, apenas para ambiente de produção)
+- Power BI Desktop (opcional, para gerar o `.pbix`)
+
+---
 
 ## Como Rodar
 
-### Back-end com H2
+### 1. Back-end
+
+**Com H2 (banco em memória — padrão para desenvolvimento):**
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-A API abre em `http://localhost:8080`.
+A API sobe em `http://localhost:8080`.
 
-Links uteis:
+Links úteis:
+- Swagger UI → `http://localhost:8080/swagger-ui.html`
+- H2 Console → `http://localhost:8080/h2-console`
+  - JDBC URL: `jdbc:h2:mem:ticketdb`
+  - Usuário: `sa` · Senha: *(vazia)*
 
-- Swagger: `http://localhost:8080/swagger-ui.html`
-- H2 Console: `http://localhost:8080/h2-console`
-- JDBC URL do H2: `jdbc:h2:mem:ticketdb`
-- Usuario H2: `sa`
-- Senha H2: vazia
+---
 
-### Back-end com PostgreSQL
+**Com PostgreSQL:**
 
-Crie o banco:
+Crie o banco antes:
 
 ```sql
 CREATE DATABASE ticketdb;
 ```
 
-Depois rode:
+Depois execute com o perfil `postgres`:
 
 ```bash
 cd backend
 mvn spring-boot:run -Dspring-boot.run.profiles=postgres
 ```
 
-As credenciais padrao estao em
-`backend/src/main/resources/application-postgres.properties`:
+As credenciais padrão ficam em `backend/src/main/resources/application-postgres.properties`:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/ticketdb
@@ -95,11 +119,11 @@ spring.datasource.username=postgres
 spring.datasource.password=postgres
 ```
 
-O arquivo `backend/database/schema-postgres.sql` documenta a estrutura SQL
-esperada. A aplicacao ainda usa Hibernate para criar/atualizar as tabelas em
-tempo de execucao.
+---
 
-### Front-end
+### 2. Front-end
+
+Em outro terminal:
 
 ```bash
 cd frontend
@@ -107,109 +131,116 @@ npm install
 npm run dev
 ```
 
-O front abre em `http://localhost:5173`.
+O front sobe em `http://localhost:5173` e aponta por padrão para `http://localhost:8080`.
 
-Por padrao ele chama `http://localhost:8080`. Para usar outra URL:
+Para usar outra URL de API:
 
 ```bash
+# Linux / macOS
 VITE_API_URL=http://localhost:8080 npm run dev
-```
 
-No Windows PowerShell:
-
-```powershell
+# Windows PowerShell
 $env:VITE_API_URL="http://localhost:8080"
 npm run dev
 ```
 
-## Fluxo de Uso
+---
 
-1. Abra o front-end.
-2. Cadastre um usuario ou faca login.
-3. Crie tickets em `Tickets` ou pela `Central de Ajuda`.
-4. Atualize o status pelo seletor de cada ticket.
-5. Acompanhe indicadores no `Home`.
-6. Exporte Excel pelo botao `Excel` ou `Exportar Excel`.
+## Endpoints da API
 
-## Endpoints
+### Autenticação
 
-### Autenticacao
-
-| Metodo | Endpoint | Descricao |
-| --- | --- | --- |
-| POST | `/auth/cadastro` | Cadastra usuario |
-| POST | `/auth/login` | Realiza login |
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/auth/cadastro` | Cadastra novo usuário |
+| `POST` | `/auth/login` | Realiza login |
 
 ### Tickets
 
-| Metodo | Endpoint | Descricao |
-| --- | --- | --- |
-| POST | `/tickets` | Cria ticket |
-| GET | `/tickets` | Lista todos os tickets |
-| GET | `/tickets/{id}` | Busca ticket por ID |
-| GET | `/tickets/status/{status}` | Filtra por status |
-| PATCH | `/tickets/{id}/status` | Atualiza somente o status |
-| PUT | `/tickets/{id}` | Atualiza dados do ticket |
-| DELETE | `/tickets/{id}` | Remove ticket |
-| GET | `/tickets/export` | Exporta planilha Excel |
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/tickets` | Cria ticket |
+| `GET` | `/tickets` | Lista todos |
+| `GET` | `/tickets/{id}` | Busca por ID |
+| `GET` | `/tickets/status/{status}` | Filtra por status |
+| `PATCH` | `/tickets/{id}/status` | Atualiza somente o status |
+| `PUT` | `/tickets/{id}` | Atualiza dados completos |
+| `DELETE` | `/tickets/{id}` | Remove ticket |
+| `GET` | `/tickets/export` | Exporta planilha Excel |
 
-Valores aceitos:
+### Valores aceitos
 
-- Status: `ABERTO`, `EM_ANDAMENTO`, `RESOLVIDO`, `CANCELADO`
-- Categoria: `PAGAMENTO`, `ENTREGA`, `DEFEITO`, `CANCELAMENTO`, `TROCA`, `OUTRO`
-- Prioridade: `BAIXA`, `MEDIA`, `ALTA`, `URGENTE`
+| Campo | Opções |
+|---|---|
+| Status | `ABERTO` · `EM_ANDAMENTO` · `RESOLVIDO` · `CANCELADO` |
+| Categoria | `PAGAMENTO` · `ENTREGA` · `DEFEITO` · `CANCELAMENTO` · `TROCA` · `OUTRO` |
+| Prioridade | `BAIXA` · `MEDIA` · `ALTA` · `URGENTE` |
 
-## Excel e Home
+---
 
-O arquivo `tickets_powerbi.xlsx` ja possui:
+## Fluxo de Uso
 
-- Aba `Tickets` com 15 chamados de exemplo
-- Aba `Resumo - Home` com indicadores por status, categoria e prioridade
-- Aba `Home` com KPIs resumidos para conferencia rapida no Excel
+1. Acesse `http://localhost:5173`
+2. Cadastre um usuário ou faça login
+3. Crie tickets pela página **Tickets** ou pela **Central de Ajuda**
+4. Altere o status pelo dropdown em cada card
+5. Acompanhe os indicadores no **Home**
+6. Exporte os dados pelo botão **Excel**
 
-Para o Power BI:
+---
 
-1. Abra o Power BI Desktop.
-2. Importe `tickets_powerbi.xlsx`.
-3. Selecione a aba `Tickets`.
-4. Monte os graficos seguindo `GUIA_POWER_BI.md`.
-5. Salve como `Home_ticketsave.pbix`.
+## Excel e Power BI
 
-Indicadores recomendados:
+O arquivo `tickets_powerbi.xlsx` já inclui:
 
-- Total de tickets
-- Tickets por status
-- Tickets por categoria
-- Tickets por prioridade
-- Taxa de resolucao
-- Urgentes pendentes
-- Evolucao por data de criacao
+- Aba **Tickets** — 15 chamados de exemplo
+- Aba **Resumo** — indicadores por status, categoria e prioridade
+- Aba **Home** — KPIs resumidos
 
-## SQL
+Para gerar o dashboard no Power BI:
 
-O projeto nao dependia de um arquivo `.sql` no pacote original. A modelagem
-principal vem das entidades JPA:
+1. Abra o Power BI Desktop
+2. Importe `tickets_powerbi.xlsx` → selecione a aba `Tickets`
+3. Monte os gráficos seguindo o `GUIA_POWER_BI.md`
+4. Salve como `Home_ticketsave.pbix`
 
-- `tickets`
-- `usuarios`
+Indicadores sugeridos: total de tickets · tickets por status · por categoria · por prioridade · taxa de resolução · urgentes pendentes · evolução por data.
 
-Para apresentar a estrutura do banco, use:
+Para regenerar o Excel com dados atualizados:
 
-```text
-backend/database/schema-postgres.sql
+```bash
+python tools/regenerate_powerbi_excel.py
 ```
 
-## Pontos de Melhoria
+---
 
-- Gerar e anexar o arquivo final `Home_ticketsave.pbix`.
-- Trocar senhas em texto puro por hash, se o professor cobrar seguranca.
-- Adicionar testes de service/controller.
-- Criar script de dados de exemplo para PostgreSQL, alem do `DataSeeder`.
-- Configurar variaveis de ambiente para usuario/senha do PostgreSQL.
-- Publicar em um repositorio GitHub com instrucoes de execucao.
+## Conformidade com o TAP
 
-## Observacoes
+| Item do TAP | Situação |
+|---|---|
+| Criação de tickets | ✅ Atendido |
+| Listagem de chamados | ✅ Atendido |
+| Atualização de status | ✅ Atendido |
+| API Spring Boot | ✅ Atendido |
+| Integração com PostgreSQL | ⚠️ Parcial — configurada por perfil; padrão local usa H2 |
+| Interface front-end | ✅ Atendido |
+| Exportação Excel | ✅ Atendido |
+| Dashboard / Power BI | ⚠️ Parcial — dashboard React entregue; arquivo `.pbix` a ser gerado no Power BI Desktop |
+| Autenticação | ➕ Extra — não prevista no TAP; implementada como melhoria |
 
-O TAP informa que a primeira versao nao teria autenticacao, mas o projeto
-entregue inclui login/cadastro. Isso pode ser apresentado como melhoria
-adicional, desde que fique claro que a autenticacao ainda e simples e academica.
+---
+
+## Equipe
+
+| RA | Nome | Função |
+|---|---|---|
+| 2224200550 | Rodrigo Silva Lima | Líder · Back-end · Dashboard |
+| 2224106734 | André Henrique Germano Florentino | Banco de Dados |
+| 2224108513 | Erik Gustavo Xavier Oliveira | Dashboard · BI |
+| 2224200973 | Guilherme Santos da Costa | Cloud · Infraestrutura |
+| 2224201689 | Luiz Carlos Teles Júnior | Back-end |
+| 2226101488 | Gregório Freitas dos Santos Cardim | Back-end |
+| 2224106811 | Matheus Ferraz Silva dos Santos | Front-end |
+| 2225109087 | Felipe da Silva Martins | Front-end |
+
+**Orientador:** Prof. Dr. Wanderley da Silva Junior · **Campus:** Santo Amaro · **Turma:** 92
