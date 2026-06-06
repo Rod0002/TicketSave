@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home TicketSave</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #687386;
+      --line: #dce2ea;
+      --blue: #2563eb;
+      --amber: #d97706;
+      --green: #059669;
+      --red: #dc2626;
+      --violet: #7c3aed;
+      --cyan: #0891b2;
+      --pink: #e11d48;
+      --orange: #ea580c;
+      --gray: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 22px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .source {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kpi,
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(23, 32, 51, 0.06);
+    }
+
+    .kpi {
+      padding: 16px;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-left: 4px solid var(--blue);
+    }
+
+    .kpi:nth-child(2) {
+      border-left-color: var(--amber);
+    }
+
+    .kpi:nth-child(3) {
+      border-left-color: var(--green);
+    }
+
+    .kpi:nth-child(4) {
+      border-left-color: var(--red);
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 18px;
+      min-height: 320px;
+    }
+
+    .panel h2 {
+      font-size: 17px;
+      margin-bottom: 16px;
+    }
+
+    .status-layout {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .pie {
+      width: 180px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--blue) 0 26.7%,
+        var(--amber) 26.7% 60%,
+        var(--green) 60% 86.7%,
+        var(--red) 86.7% 100%
+      );
+      position: relative;
+    }
+
+    .pie::after {
+      content: "";
+      position: absolute;
+      inset: 48px;
+      background: var(--surface);
+      border-radius: 50%;
+      border: 1px solid var(--line);
+    }
+
+    .legend,
+    .bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .legend-row,
+    .bar-row {
+      display: grid;
+      grid-template-columns: 16px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .bar-row {
+      grid-template-columns: 110px 1fr 36px;
+    }
+
+    .bar-track {
+      height: 12px;
+      background: #edf1f5;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--blue);
+    }
+
+    .table-panel {
+      grid-column: 1 / -1;
+      min-height: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #edf1f5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 860px) {
+      header,
+      .status-layout {
+        display: block;
+      }
+
+      .source {
+        margin-top: 10px;
+        text-align: left;
+      }
+
+      .kpis,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pie {
+        margin-bottom: 18px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>Home TicketSave - TechStore</h1>
+        <p class="subtitle">Indicadores dos tickets de suporte para e-commerce de eletronicos.</p>
+      </div>
+      <p class="source">Fonte: tickets_powerbi.xlsx</p>
+    </header>
+
+    <section class="kpis" aria-label="Indicadores principais">
+      <div class="kpi">
+        <span class="kpi-label">Total</span>
+        <strong class="kpi-value" id="totalTickets">0</strong>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Em andamento</span>
+        <strong class="kpi-value" id="andamentoTickets">0</strong>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Taxa de resolucao</span>
+        <strong class="kpi-value" id="taxaResolucao">0%</strong>
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">Urgentes pendentes</span>
+        <strong class="kpi-value" id="urgentesPendentes">0</strong>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Tickets por Status</h2>
+        <div class="status-layout">
+          <div class="pie" aria-label="Grafico de rosca por status"></div>
+          <div class="legend" id="statusLegend"></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>Tickets por Categoria</h2>
+        <div class="bars" id="categoriaBars"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Tickets por Prioridade</h2>
+        <div class="bars" id="prioridadeBars"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Evolucao por Dia</h2>
+        <div class="bars" id="evolucaoBars"></div>
+      </article>
+
+      <article class="panel table-panel">
+        <h2>Tickets Recentes</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Titulo</th>
+                <th>Cliente</th>
+                <th>Status</th>
+                <th>Categoria</th>
+                <th>Prioridade</th>
+              </tr>
+            </thead>
+            <tbody id="ticketsTable"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const tickets = [
+      { id: 6, titulo: 'Cobranca duplicada', cliente: 'Fernanda Lima', status: 'Aberto', categoria: 'Pagamento', prioridade: 'Urgente', data: '27/05/2026' },
+      { id: 1, titulo: 'Pagamento nao aprovado', cliente: 'Carlos Silva', status: 'Aberto', categoria: 'Pagamento', prioridade: 'Alta', data: '26/05/2026' },
+      { id: 9, titulo: 'Smartwatch com defeito na bateria', cliente: 'Ricardo Souza', status: 'Aberto', categoria: 'Defeito', prioridade: 'Alta', data: '26/05/2026' },
+      { id: 5, titulo: 'Troca de produto', cliente: 'Pedro Almeida', status: 'Aberto', categoria: 'Troca', prioridade: 'Media', data: '25/05/2026' },
+      { id: 2, titulo: 'Atraso na entrega', cliente: 'Maria Oliveira', status: 'Em Andamento', categoria: 'Entrega', prioridade: 'Media', data: '24/05/2026' },
+      { id: 7, titulo: 'Produto errado recebido', cliente: 'Lucas Martins', status: 'Em Andamento', categoria: 'Troca', prioridade: 'Alta', data: '23/05/2026' },
+      { id: 3, titulo: 'Produto com defeito - Galaxy S24', cliente: 'Joao Santos', status: 'Em Andamento', categoria: 'Defeito', prioridade: 'Alta', data: '22/05/2026' },
+      { id: 10, titulo: 'Reembolso nao processado', cliente: 'Patricia Rocha', status: 'Em Andamento', categoria: 'Pagamento', prioridade: 'Urgente', data: '21/05/2026' },
+      { id: 4, titulo: 'Cancelamento de pedido', cliente: 'Ana Costa', status: 'Resolvido', categoria: 'Cancelamento', prioridade: 'Baixa', data: '20/05/2026' },
+      { id: 13, titulo: 'Problema com cupom de desconto', cliente: 'Rafael Mendes', status: 'Resolvido', categoria: 'Pagamento', prioridade: 'Baixa', data: '19/05/2026' },
+      { id: 14, titulo: 'Atraso pedido internacional', cliente: 'Tatiane Barbosa', status: 'Em Andamento', categoria: 'Entrega', prioridade: 'Media', data: '18/05/2026' },
+      { id: 8, titulo: 'Entrega em endereco errado', cliente: 'Juliana Ferreira', status: 'Resolvido', categoria: 'Entrega', prioridade: 'Media', data: '17/05/2026' },
+      { id: 15, titulo: 'Trocar cor do produto', cliente: 'Gabriel Ribeiro', status: 'Cancelado', categoria: 'Troca', prioridade: 'Baixa', data: '16/05/2026' },
+      { id: 11, titulo: 'Cancelar assinatura de garantia', cliente: 'Bruno Nascimento', status: 'Resolvido', categoria: 'Cancelamento', prioridade: 'Baixa', data: '15/05/2026' },
+      { id: 12, titulo: 'Tela trincada no transporte', cliente: 'Camila Dias', status: 'Cancelado', categoria: 'Defeito', prioridade: 'Alta', data: '12/05/2026' }
+    ];
+
+    const colors = {
+      'Aberto': 'var(--blue)',
+      'Em Andamento': 'var(--amber)',
+      'Resolvido': 'var(--green)',
+      'Cancelado': 'var(--red)',
+      'Pagamento': 'var(--violet)',
+      'Entrega': 'var(--cyan)',
+      'Defeito': 'var(--pink)',
+      'Cancelamento': 'var(--gray)',
+      'Troca': 'var(--orange)',
+      'Baixa': 'var(--green)',
+      'Media': 'var(--blue)',
+      'Alta': 'var(--amber)',
+      'Urgente': 'var(--red)'
+    };
+
+    function countBy(key) {
+      return tickets.reduce((acc, ticket) => {
+        acc[ticket[key]] = (acc[ticket[key]] || 0) + 1;
+        return acc;
+      }, {});
+    }
+
+    function renderLegend(target, counts) {
+      const total = tickets.length;
+      document.getElementById(target).innerHTML = Object.entries(counts)
+        .map(([label, value]) => `
+          <div class="legend-row">
+            <span class="dot" style="background:${colors[label]}"></span>
+            <span>${label}</span>
+            <strong>${value} (${Math.round(value / total * 100)}%)</strong>
+          </div>
+        `).join('');
+    }
+
+    function renderBars(target, counts) {
+      const max = Math.max(...Object.values(counts), 1);
+      document.getElementById(target).innerHTML = Object.entries(counts)
+        .map(([label, value]) => `
+          <div class="bar-row">
+            <span>${label}</span>
+            <span class="bar-track">
+              <span class="bar-fill" style="width:${value / max * 100}%; background:${colors[label] || 'var(--blue)'}"></span>
+            </span>
+            <strong>${value}</strong>
+          </div>
+        `).join('');
+    }
+
+    const statusCounts = countBy('status');
+    const categoriaCounts = countBy('categoria');
+    const prioridadeCounts = countBy('prioridade');
+    const evolucaoCounts = countBy('data');
+    const resolvidos = statusCounts.Resolvido || 0;
+    const urgentesPendentes = tickets.filter(ticket =>
+      ticket.prioridade === 'Urgente' && !['Resolvido', 'Cancelado'].includes(ticket.status)
+    ).length;
+
+    document.getElementById('totalTickets').textContent = tickets.length;
+    document.getElementById('andamentoTickets').textContent = statusCounts['Em Andamento'] || 0;
+    document.getElementById('taxaResolucao').textContent = `${Math.round(resolvidos / tickets.length * 100)}%`;
+    document.getElementById('urgentesPendentes').textContent = urgentesPendentes;
+
+    renderLegend('statusLegend', statusCounts);
+    renderBars('categoriaBars', categoriaCounts);
+    renderBars('prioridadeBars', prioridadeCounts);
+    renderBars('evolucaoBars', evolucaoCounts);
+
+    document.getElementById('ticketsTable').innerHTML = tickets.slice(0, 8)
+      .map(ticket => `
+        <tr>
+          <td>#${ticket.id}</td>
+          <td>${ticket.titulo}</td>
+          <td>${ticket.cliente}</td>
+          <td><span class="badge" style="color:${colors[ticket.status]}">${ticket.status}</span></td>
+          <td>${ticket.categoria}</td>
+          <td>${ticket.prioridade}</td>
+        </tr>
+      `).join('');
+  </script>
+</body>
+</html>
